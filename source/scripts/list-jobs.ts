@@ -36,6 +36,7 @@ async function listJobs() {
 
 				// Tabla principal de configuración
 				const configTable = jobsInfo.map((job) => [
+					job.config.id || job.config.name,
 					job.config.name,
 					job.config.cronExpression,
 					job.config.timezone || 'Default',
@@ -43,7 +44,7 @@ async function listJobs() {
 					job.config.metadata?.description || 'No description',
 				]);
 
-				logger.table(['Job Name', 'Schedule', 'Timezone', 'Status', 'Description'], configTable);
+				logger.table(['ID', 'Job Name', 'Schedule', 'Timezone', 'Status', 'Description'], configTable);
 
 				// Tabla de configuración adicional si hay datos relevantes
 				const additionalConfigJobs = jobsInfo.filter(
@@ -53,13 +54,14 @@ async function listJobs() {
 				if (additionalConfigJobs.length > 0) {
 					logger.subheader('Configuración avanzada:');
 					const advancedTable = additionalConfigJobs.map((job) => [
+						job.config.id || job.config.name,
 						job.config.name,
 						job.config.runOnInit ? 'Yes' : 'No',
 						job.config.maxRetries?.toString() || 'Default',
 						job.config.retryDelay ? `${job.config.retryDelay}ms` : 'Default',
 					]);
 
-					logger.table(['Job Name', 'Run on Init', 'Max Retries', 'Retry Delay'], advancedTable);
+					logger.table(['ID', 'Job Name', 'Run on Init', 'Max Retries', 'Retry Delay'], advancedTable);
 				}
 
 				// Resumen

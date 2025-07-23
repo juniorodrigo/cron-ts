@@ -26,9 +26,14 @@ export class JobLoader {
 
 			loaderLogger.info(`Encontradas ${jobDirs.length} carpetas de jobs`);
 
+			const loadedJobs: JobConfig[] = [];
+
 			for (const jobDir of jobDirs) {
 				try {
-					await this.loadJob(jobDir);
+					const jobConfig = await this.loadJob(jobDir);
+					if (jobConfig) {
+						loadedJobs.push(jobConfig);
+					}
 				} catch (error) {
 					loaderLogger.error(
 						`Error cargando job desde directorio: ${jobDir}`,
@@ -36,6 +41,9 @@ export class JobLoader {
 					);
 				}
 			}
+
+			// Validar IDs únicos
+			this.validateUniqueIds(loadedJobs);
 
 			loaderLogger.info(`Cargados ${jobManager.getActiveJobsCount()} jobs exitosamente`);
 		} catch (error) {
@@ -47,7 +55,7 @@ export class JobLoader {
 	/**
 	 * Carga un job específico desde su directorio
 	 */
-	private async loadJob(jobDir: string): Promise<void> {
+	private async loadJob(jobDir: string): Promise<JobConfig | null> {
 		const configPath = join(this.jobsPath, jobDir, 'config.ts');
 		const functionPath = join(this.jobsPath, jobDir, 'function.ts');
 
@@ -57,7 +65,7 @@ export class JobLoader {
 			statSync(functionPath);
 		} catch {
 			loaderLogger.warn(`No se encontraron config.ts y function.ts en directorio: ${jobDir}`);
-			return;
+			return null;
 		}
 
 		try {
@@ -78,12 +86,35 @@ export class JobLoader {
 			jobManager.register(jobModule.config, jobModule.execute);
 
 			loaderLogger.info(`Cargado: ${jobModule.config.name}`);
+
+			return jobModule.config;
 		} catch (error) {
 			loaderLogger.error(
 				`Error cargando job desde directorio: ${jobDir}`,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			throw error;
+			return null;
+		}
+	}
+
+	/**
+	 * Valida que no haya IDs duplicados
+	 */
+	private validateUniqueIds(jobs: JobConfig[]): void {
+		const ids = new Set<string>();
+		const duplicates: string[] = [];
+
+		for (const job of jobs) {
+			const id = job.id || job.name;
+			if (ids.has(id)) {
+				duplicates.push(id);
+			} else {
+				ids.add(id);
+			}
+		}
+
+		if (duplicates.length > 0) {
+			throw new Error(`IDs duplicados encontrados: ${duplicates.join(', ')}`);
 		}
 	}
 

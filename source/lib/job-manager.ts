@@ -98,7 +98,7 @@ export class JobManager {
 	}
 
 	/**
-	 * Ejecuta un job manualmente
+	 * Ejecuta un job manualmente por nombre
 	 */
 	async executeJobManually(jobName: string): Promise<JobResult> {
 		const job = this.jobs.get(jobName);
@@ -107,6 +107,32 @@ export class JobManager {
 		}
 
 		return this.executeJob(jobName);
+	}
+
+	/**
+	 * Ejecuta un job manualmente por ID
+	 */
+	async executeJobById(jobId: string): Promise<JobResult> {
+		// Buscar job por ID
+		const job = this.findJobById(jobId);
+		if (!job) {
+			throw new Error(`Job con ID '${jobId}' no encontrado`);
+		}
+
+		return this.executeJob(job.config.name);
+	}
+
+	/**
+	 * Busca un job por su ID o nombre
+	 */
+	findJobById(jobId: string): { config: JobConfig; task: any; func: any } | undefined {
+		for (const [name, job] of this.jobs.entries()) {
+			const id = job.config.id || job.config.name;
+			if (id === jobId) {
+				return job;
+			}
+		}
+		return undefined;
 	}
 
 	/**

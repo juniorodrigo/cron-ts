@@ -13,6 +13,8 @@ Template robusto y genérico para crear y gestionar cron jobs con TypeScript, di
 - 📊 **Monitoreo de ejecución** y métricas
 - 🔧 **Configuración por variables de entorno**
 - 🏗️ **Arquitectura modular** y escalable
+- 🎯 **Ejecución manual** de jobs por ID/comando
+- 🔄 **Validación de IDs únicos** automática
 
 ## 🏗️ Arquitectura Desacoplada
 
@@ -290,6 +292,88 @@ const jobsInfo = jobManager.getJobsInfo();
 // Obtener número de jobs activos
 const activeCount = jobManager.getActiveJobsCount();
 \`\`\`
+
+## 🎯 Ejecución Manual de Jobs
+
+El sistema permite ejecutar jobs manualmente usando IDs únicos, útil para:
+
+- **Testing**: Probar jobs sin esperar al horario programado
+- **Debugging**: Verificar el comportamiento de un job específico
+- **Operaciones**: Ejecutar procesos bajo demanda
+- **CI/CD**: Integrar jobs en pipelines de despliegue
+
+### 🏷️ Sistema de IDs
+
+Cada job puede tener un **ID único** (opcional) para facilitar la ejecución manual:
+
+```typescript
+const config: JobConfig = {
+	name: 'daily-sales-report', // Nombre descriptivo
+	id: 'sales', // ID corto para ejecución manual
+	cronExpression: '0 9 * * 1-5',
+	// ... resto de configuración
+};
+```
+
+**Reglas de IDs:**
+
+- Si no se especifica `id`, se usa el `name`
+- Los IDs deben ser únicos (validación automática)
+- Preferir IDs cortos y descriptivos (`sales`, `cleanup`, `backup`)
+
+### 📋 Comandos disponibles
+
+```bash
+# Listar todos los jobs con sus IDs
+pnpm jobs:list
+
+# Ejecutar job por ID
+pnpm job:run <job-id>
+
+# Ejemplos
+pnpm job:run sales       # Ejecuta daily-sales-report
+pnpm job:run cleanup     # Ejecuta example-cleanup
+pnpm job:run backup      # Ejecuta database-backup
+```
+
+### 🔍 Salida de ejecución manual
+
+Cuando ejecutas un job manualmente obtienes:
+
+```bash
+EJECUCIÓN MANUAL DE JOB: sales
+•  Cargando jobs...
+•  Ejecutando job: daily-sales-report
+ID: sales | Descripción: Genera reporte de ventas diarias
+•  Ejecutando: daily-sales-report
+✓  Completado: daily-sales-report (150ms): Reporte generado exitosamente
+✅ Job completado exitosamente en 150ms
+Mensaje: Reporte generado para 2024-01-15
+Datos del resultado:
+{
+  "reportPath": "./reports/sales-2024-01-15.json",
+  "totalSales": 25000,
+  "recordsProcessed": 1240
+}
+```
+
+### ❌ Manejo de errores
+
+Si especificas un ID inexistente, el sistema te muestra los IDs disponibles:
+
+```bash
+pnpm job:run invalid-id
+
+✗  Job 'invalid-id' no encontrado
+Jobs disponibles:
+┌─────────┬─────────────────┬──────────────────────────────┐
+│ID       │Name             │Description                   │
+├─────────┼─────────────────┼──────────────────────────────┤
+│sales    │daily-sales-report│Genera reporte de ventas     │
+│cleanup  │example-cleanup   │Limpia archivos temporales    │
+│backup   │database-backup   │Respaldo de base de datos     │
+└─────────┴─────────────────┴──────────────────────────────┘
+```
 
 ## 🚀 Ejemplos de uso
 

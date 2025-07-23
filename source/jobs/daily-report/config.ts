@@ -2,6 +2,7 @@ import type { JobConfig } from '../../types/global.js';
 
 const config: JobConfig = {
 	name: 'daily-report',
+	id: 'report',
 	cronExpression: '0 9 * * 1-5', // Lunes a viernes a las 9:00 AM
 	timezone: 'America/Mexico_City',
 	enabled: true,

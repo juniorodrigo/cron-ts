@@ -2,6 +2,7 @@ import type { JobConfig } from '../../types/global.js';
 
 const config: JobConfig = {
 	name: 'example-cleanup',
+	id: 'cleanup',
 	cronExpression: '0 2 * * *', // Todos los días a las 2:00 AM
 	timezone: 'America/Mexico_City',
 	enabled: true,

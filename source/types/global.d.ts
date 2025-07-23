@@ -21,6 +21,7 @@ export interface JobCallback {
 
 export interface JobConfig {
 	name: string;
+	id?: string; // ID único para ejecución manual (opcional, default: name)
 	cronExpression: string;
 	timezone?: string;
 	enabled?: boolean;

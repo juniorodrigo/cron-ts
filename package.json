@@ -6,7 +6,8 @@
 		"dev": "tsx watch source/index.ts",
 		"start": "tsx source/index.ts",
 		"build": "tsc",
-		"jobs:list": "tsx source/scripts/list-jobs.ts"
+		"jobs:list": "tsx source/scripts/list-jobs.ts",
+		"jobs:run": "tsx source/scripts/run-job.ts"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.7",
