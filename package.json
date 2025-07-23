@@ -1,0 +1,27 @@
+{
+	"name": "cron-ts-template",
+	"description": "Template robusto para cron jobs con TypeScript",
+	"type": "module",
+	"scripts": {
+		"dev": "tsx watch source/index.ts",
+		"start": "tsx source/index.ts",
+		"build": "tsc",
+		"jobs:list": "tsx source/scripts/list-jobs.ts"
+	},
+	"dependencies": {
+		"dotenv": "^16.4.7",
+		"node-cron": "^3.0.3",
+		"signale": "^1.4.0",
+		"winston": "^3.17.0",
+		"winston-daily-rotate-file": "^5.0.0",
+		"zod": "^3.24.3"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.17",
+		"@types/node-cron": "^3.0.11",
+		"@types/signale": "^1.4.7",
+		"tsx": "^4.7.1",
+		"typescript": "^5.3.3"
+	},
+	"packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
+}
