@@ -48,19 +48,28 @@ export class JobLoader {
 	 * Carga un job específico desde su directorio
 	 */
 	private async loadJob(jobDir: string): Promise<void> {
-		const jobPath = join(this.jobsPath, jobDir, 'job.ts');
+		const configPath = join(this.jobsPath, jobDir, 'config.ts');
+		const functionPath = join(this.jobsPath, jobDir, 'function.ts');
 
 		try {
-			// Verificar si existe el archivo job.ts
-			statSync(jobPath);
+			// Verificar si existen ambos archivos
+			statSync(configPath);
+			statSync(functionPath);
 		} catch {
-			loaderLogger.warn(`No se encontró job.ts en directorio: ${jobDir}`);
+			loaderLogger.warn(`No se encontraron config.ts y function.ts en directorio: ${jobDir}`);
 			return;
 		}
 
 		try {
-			// Importar el módulo del job
-			const jobModule = await this.importJobModule(jobPath);
+			// Importar ambos módulos por separado
+			const configModule = await this.importModule(configPath);
+			const functionModule = await this.importModule(functionPath);
+
+			// Crear el módulo completo del job
+			const jobModule: JobModule = {
+				config: configModule.default,
+				execute: functionModule.default,
+			};
 
 			// Validar la estructura del módulo
 			this.validateJobModule(jobModule, jobDir);
@@ -71,7 +80,7 @@ export class JobLoader {
 			loaderLogger.info(`Cargado: ${jobModule.config.name}`);
 		} catch (error) {
 			loaderLogger.error(
-				`Error cargando job desde: ${jobPath}`,
+				`Error cargando job desde directorio: ${jobDir}`,
 				error instanceof Error ? error : new Error(String(error))
 			);
 			throw error;
@@ -79,10 +88,10 @@ export class JobLoader {
 	}
 
 	/**
-	 * Importa dinámicamente un módulo de job
+	 * Importa dinámicamente un módulo
 	 */
-	private async importJobModule(jobPath: string): Promise<JobModule> {
-		const fileUrl = pathToFileURL(jobPath).href;
+	private async importModule(filePath: string): Promise<any> {
+		const fileUrl = pathToFileURL(filePath).href;
 		const module = await import(fileUrl);
 		return module;
 	}
@@ -129,23 +138,25 @@ export class JobLoader {
 	/**
 	 * Obtiene información de todos los jobs disponibles (cargados o no)
 	 */
-	getAvailableJobs(): Array<{ directory: string; hasJobFile: boolean }> {
+	getAvailableJobs(): Array<{ directory: string; hasJobFiles: boolean }> {
 		const jobDirs = this.getJobDirectories();
 
 		return jobDirs.map((dir) => {
-			const jobPath = join(this.jobsPath, dir, 'job.ts');
-			let hasJobFile = false;
+			const configPath = join(this.jobsPath, dir, 'config.ts');
+			const functionPath = join(this.jobsPath, dir, 'function.ts');
+			let hasJobFiles = false;
 
 			try {
-				statSync(jobPath);
-				hasJobFile = true;
+				statSync(configPath);
+				statSync(functionPath);
+				hasJobFiles = true;
 			} catch {
-				// El archivo no existe
+				// Los archivos no existen
 			}
 
 			return {
 				directory: dir,
-				hasJobFile,
+				hasJobFiles,
 			};
 		});
 	}

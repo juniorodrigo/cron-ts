@@ -4,7 +4,7 @@ import { logger } from '../lib/logger.js';
 
 async function listJobs() {
 	try {
-		logger.header('📋 LISTADO DE JOBS');
+		logger.header('LISTADO DE JOBS');
 
 		// Obtener jobs disponibles en el directorio
 		const availableJobs = jobLoader.getAvailableJobs();
@@ -18,14 +18,14 @@ async function listJobs() {
 		logger.subheader('Archivos encontrados:');
 		const filesTable = availableJobs.map((job) => [
 			job.directory,
-			job.hasJobFile ? '✓ Present' : '✗ Missing',
-			job.hasJobFile ? 'Ready' : 'Not Ready',
+			job.hasJobFiles ? '✓ Present' : '✗ Missing',
+			job.hasJobFiles ? 'Ready' : 'Not Ready',
 		]);
 
-		logger.table(['Job Directory', 'job.ts File', 'Status'], filesTable);
+		logger.table(['Job Directory', 'config.ts + function.ts', 'Status'], filesTable);
 
 		// Si hay jobs válidos, mostrar detalles
-		const validJobs = availableJobs.filter((job) => job.hasJobFile);
+		const validJobs = availableJobs.filter((job) => job.hasJobFiles);
 
 		if (validJobs.length > 0) {
 			logger.subheader('Configuración de jobs:');

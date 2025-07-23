@@ -14,6 +14,44 @@ Template robusto y genérico para crear y gestionar cron jobs con TypeScript, di
 - 🔧 **Configuración por variables de entorno**
 - 🏗️ **Arquitectura modular** y escalable
 
+## 🏗️ Arquitectura Desacoplada
+
+Este template utiliza una **arquitectura desacoplada** que separa la configuración de la lógica:
+
+### 📁 Estructura de cada job:
+
+```
+source/jobs/mi-job/
+├── config.ts      # Solo configuración (export default)
+└── function.ts    # Solo función de ejecución (export default)
+```
+
+### 🎯 Ventajas de esta arquitectura:
+
+1. **Separación de responsabilidades**: La configuración está separada de la lógica
+2. **Reutilización**: Puedes reutilizar configuraciones o funciones
+3. **Mantenibilidad**: Es más fácil encontrar y modificar configuraciones
+4. **Escalabilidad**: Permite configuraciones dinámicas o funciones compartidas
+5. **Testing**: Puedes probar configuración y lógica por separado
+
+### 📋 Templates disponibles:
+
+- `source/templates/config.example.ts` - Template de configuración
+- `source/templates/function.example.ts` - Template de función
+
+### 🔧 Creación rápida de jobs:
+
+```bash
+# Crear directorio
+mkdir source/jobs/mi-nuevo-job
+
+# Copiar templates
+cp source/templates/config.example.ts source/jobs/mi-nuevo-job/config.ts
+cp source/templates/function.example.ts source/jobs/mi-nuevo-job/function.ts
+
+# Editar archivos según necesidades
+```
+
 ## 📁 Estructura del proyecto
 
 \`\`\`
@@ -21,9 +59,14 @@ cron-ts/
 ├── source/
 │ ├── jobs/ # Directorio de jobs
 │ │ ├── example-cleanup/ # Job de ejemplo: limpieza
-│ │ │ └── job.ts # Archivo principal del job
+│ │ │ ├── config.ts # Configuración del job
+│ │ │ └── function.ts # Función de ejecución
 │ │ └── daily-report/ # Job de ejemplo: reportes
-│ │ └── job.ts # Archivo principal del job
+│ │ ├── config.ts # Configuración del job
+│ │ └── function.ts # Función de ejecución
+│ ├── templates/ # Templates para crear nuevos jobs
+│ │ ├── config.example.ts # Template de configuración
+│ │ └── function.example.ts # Template de función
 │ ├── config/
 │ │ ├── env.ts # Configuración de entorno
 │ │ └── errors.ts # Clases de error personalizadas
@@ -98,11 +141,23 @@ TIMEZONE=UTC
 mkdir source/jobs/mi-nuevo-job
 \`\`\`
 
-### 2. Crear archivo job.ts
+### 2. Crear archivos de configuración y función
+
+Copia los templates y modifícalos:
+
+\`\`\`bash
+
+# Copiar templates
+
+cp source/templates/config.example.ts source/jobs/mi-nuevo-job/config.ts
+cp source/templates/function.example.ts source/jobs/mi-nuevo-job/function.ts
+\`\`\`
+
+#### 2a. Configuración del job (config.ts)
 
 \`\`\`typescript
-// source/jobs/mi-nuevo-job/job.ts
-import type { JobConfig, JobFunction, JobExecutionContext, JobResult } from '../../types/global.js';
+// source/jobs/mi-nuevo-job/config.ts
+import type { JobConfig } from '../../types/global.js';
 
 export const config: JobConfig = {
 name: 'mi-nuevo-job',
@@ -240,19 +295,21 @@ const activeCount = jobManager.getActiveJobsCount();
 
 ### Job de limpieza de archivos
 
-Ver: \`source/jobs/example-cleanup/job.ts\`
+Ver: \`source/jobs/example-cleanup/\`
 
 - Limpia archivos temporales antiguos
 - Configurable por edad de archivos
 - Reporta espacio liberado
+- **Archivos**: \`config.ts\` + \`function.ts\`
 
 ### Job de reporte diario
 
-Ver: \`source/jobs/daily-report/job.ts\`
+Ver: \`source/jobs/daily-report/\`
 
 - Genera reportes automáticos
 - Recopila métricas del sistema
 - Guarda resultados en JSON
+- **Archivos**: \`config.ts\` + \`function.ts\`
 
 ### Job de respaldo de base de datos
 
